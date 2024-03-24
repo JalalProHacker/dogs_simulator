@@ -1,1 +1,423 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dogs Population Simulator</title>
+  </head>
+  <body>
 
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Merriweather:400,400i,700");
+@import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
+
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	background-image: url('data:image/svg+xml,%3Csvg width="52" height="26" viewBox="0 0 52 26" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.4"%3E%3Cpath d="M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+}
+.controls{
+	display: flex;
+	justify-content: center;
+	place-items: center;
+	flex-direction:column;
+}
+h2{
+	font-family: raleway;
+	font-weight: 800;
+}
+.controls button{
+	width: 200px;
+	height: 50px;
+	background-image: linear-gradient(45deg, blue, darkblue, blue, darkblue);
+	background-size: 200%;
+	border: 0;
+	border-radius: 25px;
+	color: white;
+	font-weight: 800;
+	font-family: raleway;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: 0.4s;
+	
+}
+.controls button:hover{
+	background-position: 100% 100%;
+	transform: scale(1.1, 1.1);
+	box-shadow: 0 0 20px rgba(0,0,0,.8);
+}
+h1 {
+	text-align: center;
+	font-family: merriweather;
+	margin-bottom: 0;}
+p.subtitle{
+	text-align: center;
+	font-family: merriweather;
+	opacity: .5;
+	font-weight: 800;
+	margin-top: 5px;
+	text-transform: none;
+	margin-bottom: 25px;
+}
+p{
+	font-family: montserrat;
+	margin: 3px;
+	text-transform: uppercase;
+	font-weight: 800;
+	opacity: .6;
+}
+.generations {
+	list-style-type: none;
+	padding: 0;
+}
+.generation {
+	margin-bottom: 20px;
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	align-content: center;
+	justify-content: center;
+	place-items: center;
+}
+.dogs-list {
+	display: grid;
+	grid-template-columns: repeat(20, 20px);
+	justify-content: center;
+	align-items: center;
+	place-items: center;
+	align-content: center;
+	width: 50%;
+	gap: 5px;
+	border: 0px solid black;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 5px;
+	border-radius: 10px;
+	overflow: hidden;
+}
+.dog {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	margin: 2px;
+	box-shadow: 0 0 5px rgba(0,0,0,.5);
+	display: inline-block;
+	transition: 0.2s;
+}
+.dog:hover{
+	transform: scale(1.3, 1.3);
+}
+.infected {
+	background-color: red;
+}
+.dead {
+	background-color: darkgrey;
+}
+.healthy {
+	background-color: green;
+}
+.immune {
+	background-color: blue;
+}
+.dog.small{
+	width: 10px;
+	height: 10px;
+}
+
+.container{
+	width: 80%;
+	height: 80%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: white;
+	box-shadow: 0 0 40px rgba(0,0,0,.8), inset 0 0 40px rgba(0,0,0,.2);
+	border-radius: 15px;
+	overflow: scroll;
+}
+input{
+	text-align: center;
+	margin-bottom: 15px;
+	outline: none;
+	height: 35px;
+	width: 100px;
+	border-radius: 35px;
+	border: 3px solid blue;
+	font-family: montserrat;
+	font-size: 1em;
+	font-weight: 800;
+	color: blue;
+	box-shadow: 0 0 15px rgba(0,0,0,.7), inset 0 0 0 0 blue, inset 0 0 0px rgba(0,0,0,.8);
+	transition: 0.4s;
+}
+input:focus{
+	box-shadow: 0 0 15px rgba(0,0,0,.7), inset 0 0 20px rgba(0,0,0,.8), inset 120px 0 0 0 blue;
+	color: white;
+}
+    </style>
+    
+    <div class="container">
+	<h1>Rabbit Population Simulation</h1>
+	<p class="subtitle">Generates a population of rabbits with disease.</p>
+	<hr>
+	<div class="controls">
+		<p>Population of Generation 0:</p>
+		<input type="number" id="initialpopulation" value="25">
+		<p>Diseased in Generation 0:</p>
+		<input type="number" id="initialdiseased" value="2">
+		<p>Generations to simulate:</p>
+		<input type="number" id="gennumber" value="5">
+		<button onclick="simulatePopulation()">Run Simulation</button>
+	</div>
+	<hr>
+	<ul class="generations" id="generations">
+		<!-- Generations will be added here -->
+	</ul>
+</div>
+
+<script>
+  class Dog {
+	constructor(hasDisease, immune = false, alive = true) {
+		this.hasDisease = hasDisease;
+		this.immune = immune;
+		this.alive = alive;
+	}
+
+	reproduce() {
+		return new Dog(this.hasDisease, this.immune);
+	}
+
+	survive(hasPredators) {
+		if (hasPredators) { 
+			this.alive = Math.random() > 0.8; // 80% chance of survival if predators present
+		} else {
+			this.alive = true; // Assume all dogs survive if no predators
+		}
+	}
+
+	dieDueToDisease() {
+		if (this.hasDisease && Math.random() < 0.3) {
+			this.alive = false; // 30% chance of dying due to disease
+		}
+	}
+
+	dieDueToNaturalCauses() {
+		if (Math.random() < 0.00) {
+			this.alive = false; // 0% chance of dying due to natural causes
+		}
+	}
+
+	spreadDisease() {
+		if (this.hasDisease && !this.immune && Math.random() < 0.5) {
+			this.hasDisease = false; // Dog spreads disease to other dogs with 50% probability
+		}
+	}
+}
+
+function simulateGeneration(population, hasPredators, diseaseProbability, generationNumber) {
+	let numDogsDied = 0;
+	let numDogsDiedDueToDisease = 0;
+	let numDogsDiedDueToPredators = 0;
+	let numDogsDiedDueToNaturalCauses = 0;
+	let numSurvivedWithoutDisease = 0;
+
+	// Reproduction phase and spread of disease
+	let newGeneration = [];
+	for (const dog of population) {
+		if (dog.alive) {
+			const numOffspring = Math.floor(Math.random() * 2) + 1; // Random number of offspring per dog (1-2)
+			for (let i = 0; i < numOffspring; i++) {
+				const offspring = dog.reproduce();
+				if (dog.hasDisease && !offspring.immune) {
+					offspring.hasDisease = true; // Offspring inherits disease if parent has it and is not immune
+				}
+				newGeneration.push(offspring);
+			}
+			dog.spreadDisease(); // Spread disease to other dogs
+		}
+	}
+
+	// Survival phase and death due to disease
+	for (const dog of newGeneration) {
+		dog.survive(hasPredators);
+		if (dog.hasDisease) {
+			dog.dieDueToDisease();
+			if (!dog.alive) {
+				numDogsDiedDueToDisease++;
+			}
+		} else if (!dog.alive) {
+			numDogsDiedDueToNaturalCauses++;
+		} else {
+			numSurvivedWithoutDisease++;
+		}
+	}
+
+	// Natural deaths
+	numDogsDiedDueToNaturalCauses += Math.min(population.length, Math.floor(population.length * 0.15)); // Maximum of 15% of current population dies due to natural causes
+
+	// Predator deaths
+	numDogsDiedDueToPredators = Math.min(population.length, Math.floor(population.length * 0.04)); // Maximum of 4% of current population dies due to predators
+
+	// Total number of dogs died
+	numDogsDied = numDogsDiedDueToDisease + numDogsDiedDueToPredators + numDogsDiedDueToNaturalCauses;
+
+	// Update population for next generation
+	population = newGeneration.filter(dog => dog.alive);
+
+	// Add dead dogs to the population
+	const numDeadDogs = numDogsDiedDueToNaturalCauses + numDogsDiedDueToPredators + numDogsDiedDueToDisease;
+	for (let i = 0; i < numDeadDogs; i++) {
+		population.push(new Dog(false, false, false)); // Add dead dogs
+	}
+
+	// Update immune status of dogs
+	for (const dog of population) {
+		if (!dog.hasDisease && !dog.immune && Math.random() < 0.1) {
+			dog.immune = true; // 10% chance of developing immunity each generation if disease-free
+		}
+	}
+
+	// Update disease probability for the next generation
+	diseaseProbability -= 0.2; // Decrease disease probability by 20% each generation
+
+	// Create list item for the generation
+	const generationElement = document.createElement('div');
+	var generationstats = document.createElement('div');
+	generationstats.classList.add('generationstats');
+	var generationNumberShower = document.createElement('h2');
+	generationNumberShower.innerHTML = "Generation #" + generationNumber + ":";
+	var populationshower = document.createElement('p');
+	var immuneshower = document.createElement('p');
+	var healthyshower = document.createElement('p');
+	var diseasedshower = document.createElement('p');
+	var deadshower = document.createElement('p');
+	generationElement.classList.add('generation');
+	// Add dogs to the population container
+	const dogsList = document.createElement('div');
+	dogsList.classList.add('dogs-list');
+	// Add immune dogs
+	var immune = 0;
+	for (const dog of population.filter(dog => dog.immune)) {
+		const dogElement = document.createElement('div');
+		dogElement.classList.add('dog');
+		dogElement.classList.add('immune');
+		if(population.length > 300){
+			dogElement.classList.add('small');
+		}
+		dogsList.appendChild(dogElement);
+		immune++;
+	}
+	immuneshower.innerHTML = "Dogs immune: " + immune + " (" + Math.floor((immune / population.length) * 100) + "%)";
+	// Add healthy dogs
+	var healthydogs = 0;
+	for (const dog of population.filter(dog => !dog.hasDisease && dog.alive && !dog.immune)) {
+		const dogElement = document.createElement('div');
+		dogElement.classList.add('dog');
+		dogElement.classList.add('healthy');
+		if(population.length > 300){
+			dogElement.classList.add('small');
+		}
+		dogsList.appendChild(dogElement);
+		healthydogs++;
+	}
+	healthyshower.innerHTML = "Healthy dogs: " + healthydogs;
+	// Add diseased dogs
+	var diseaseddogs = 0;
+	for (const dog of population.filter(dog => dog.hasDisease && dog.alive)) {
+		const dogElement = document.createElement('div');
+		dogElement.classList.add('dog');
+		dogElement.classList.add('infected');
+		if(population.length > 300){
+			dogElement.classList.add('small');
+		}
+		dogsList.appendChild(dogElement);
+		diseaseddogs++;
+	}
+	diseasedshower.innerHTML = "Diseased dogs: " + diseaseddogs;
+	// Add dead dogs
+	var deaddogs = 0;
+	for (const dog of population.filter(dog => !dog.alive)) {
+		const dogElement = document.createElement('div');
+		dogElement.classList.add('dog');
+		dogElement.classList.add('dead');
+		if(population.length > 300){
+			dogElement.classList.add('small');
+		}
+		dogsList.appendChild(dogElement);
+		deaddogs++;
+	}
+	deadshower.innerHTML = "Dogs dead: " + deaddogs;
+	populationshower.innerHTML = "Population: " + population.length;
+	generationstats.appendChild(generationNumberShower);
+	generationstats.appendChild(populationshower);
+	generationstats.appendChild(immuneshower);
+	generationstats.appendChild(healthyshower);
+	generationstats.appendChild(diseasedshower);
+	generationstats.appendChild(deadshower);
+	generationElement.appendChild(generationstats);
+	generationElement.appendChild(dogsList);
+	if(population.length > 300){
+		dogsList.style.gridTemplateColumns = "repeat(40, 10px)";
+		dogsList.style.gap = "3px";
+	}
+	document.getElementById('generations').appendChild(generationElement);
+
+	return {
+		population: population,
+		numDogsDied: numDogsDied,
+		numDiedDueToDisease: numDogsDiedDueToDisease,
+		numDiedDueToPredators: numDogsDiedDueToPredators,
+		numDiedDueToNaturalCauses: numDogsDiedDueToNaturalCauses,
+		numSurvivedWithoutDisease: numSurvivedWithoutDisease,
+		diseaseProbability: diseaseProbability,
+		numImmune: population.filter(dog => dog.immune).length,
+		numDiseased: population.filter(dog => dog.hasDisease).length
+	};
+}
+
+function simulatePopulation() {
+	document.getElementById("generations").innerHTML = '';
+	// Empty container for every re-run
+	let population = [];
+	//console.log("Population: " + population.length);
+	let hasPredators = Math.random() < 0.5; // Randomly decide if predators are present
+	let diseaseProbability = 0.5; // Initial disease probability
+	let generationNumber = 1;
+
+	// Initialize population with 25 dogs, including diseased ones
+	var initialpopulationnumber = document.getElementById("initialpopulation").value - document.getElementById("initialdiseased").value;
+	for (let i = 0; i < initialpopulationnumber; i++) {
+		population.push(new Dog(false));
+		console.log("Added new undiseased dog! Pop:" + population.length);
+	}
+		var hasDisease = document.getElementById("initialdiseased").value;
+		for(let i = 0; i < hasDisease; i++){
+			population.push(new Dog(true));
+			console.log("Added new diseased dog! Pop:" + population.length);
+		}
+	console.log("Initial Diseased:" + document.getElementById("initialdiseased").value);
+	console.log("Initial Population:" + initialpopulationnumber);
+	console.log("Population:" + population.length);
+
+	// Simulation loop
+	var maximumgenerationnumber = document.getElementById("gennumber").value;
+	const interval = setInterval(() => {
+		if (generationNumber > maximumgenerationnumber) {
+			clearInterval(interval);
+			return;
+		}
+
+		const generationResult = simulateGeneration(population, hasPredators, diseaseProbability, generationNumber);
+		population = generationResult.population;
+		diseaseProbability = generationResult.diseaseProbability;
+		generationNumber++;
+	}, 1000);
+}
+
+// Run the simulation
+//simulatePopulation();
+</script>
+    
+  </body>
+</html>
